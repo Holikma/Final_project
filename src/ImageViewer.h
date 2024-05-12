@@ -46,4 +46,7 @@ private slots:
 
 	//Tools slots
 	void on_pushButtonSetColor_clicked();
+	void on_pushButtonAddLayer_clicked();
+	void on_pushButtonRemoveLayer_clicked() {};
+	void on_list_Layers_itemClicked(QListWidgetItem* item);
 };

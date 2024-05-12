@@ -1,5 +1,21 @@
 #include   "ViewerWidget.h"
 
+void Layer::Print_Info() {
+	qDebug() << "Layer Depth: " << Layer_Depth;
+	qDebug() << "Points: ";
+	for (int i = 0; i < points.size(); i++) {
+		qDebug() << points[i];
+	}
+	qDebug() << "Border color: " << BorderColor;
+	qDebug() << "Fill color: " << FillColor;
+	qDebug() << "Fill: " << fill_state;
+	qDebug() << "Border: " << border_state;
+	qDebug() << "Visible: " << visible_state;
+	qDebug() << "Selected: " << selected_state;
+	qDebug() << "";
+
+}
+
 ViewerWidget::ViewerWidget(QSize imgSize, QWidget* parent): QWidget(parent){
 	setAttribute(Qt::WA_StaticContents);
 	setMouseTracking(true);
@@ -126,4 +142,11 @@ void ViewerWidget::paintEvent(QPaintEvent* event){
 	QPainter painter(this);
 	QRect area = event->rect();
 	painter.drawImage(area, *img, area);
+}
+
+//custom functions
+void ViewerWidget::Add_Layer() {
+	Layer* newLayer = new Layer();
+	newLayer->Set_Layer_Depth(Layers.size());
+	Layers.push_back(newLayer);
 }

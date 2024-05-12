@@ -9,11 +9,11 @@ ImageViewer::ImageViewer(QWidget* parent): QMainWindow(parent), ui(new Ui::Image
 	ui->scrollArea->setWidgetResizable(true);
 	ui->scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 	ui->scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-
+	ui->scrollArea->setAlignment(Qt::AlignCenter);
 	vW->setObjectName("ViewerWidget");
 	vW->installEventFilter(this);
 
-	globalColor = Qt::blue;
+	globalColor = Qt::black;
 	QString style_sheet = QString("background-color: #%1;").arg(globalColor.rgba(), 0, 16);
 	ui->pushButtonSetColor->setStyleSheet(style_sheet);
 }
@@ -163,4 +163,21 @@ void ImageViewer::on_pushButtonSetColor_clicked(){
 		ui->pushButtonSetColor->setStyleSheet(style_sheet);
 		globalColor = newColor;
 	}
+}
+
+// custom functions
+void ImageViewer::on_pushButtonAddLayer_clicked(){
+	ui->list_Layers->clear();
+	vW->Add_Layer();
+	for (int i = 0; i < vW->Get_Layers().size(); i++) {
+		// add vW->Get_Layer(i)->Get_LayerID() to list_Layers as string
+		ui->list_Layers->addItem(QString::number(vW->Get_Layer(i)->Get_Layer_Depth()));
+	}
+}
+
+void ImageViewer::on_list_Layers_itemClicked(QListWidgetItem* item) {
+	int index = ui->list_Layers->row(item);
+	// get layer from index
+	Layer* layer = vW->Get_Layer(index);
+	layer->Print_Info();
 }
