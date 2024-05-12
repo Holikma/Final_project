@@ -1,8 +1,6 @@
 #include   "ViewerWidget.h"
 
-ViewerWidget::ViewerWidget(QSize imgSize, QWidget* parent)
-	: QWidget(parent)
-{
+ViewerWidget::ViewerWidget(QSize imgSize, QWidget* parent): QWidget(parent){
 	setAttribute(Qt::WA_StaticContents);
 	setMouseTracking(true);
 	if (imgSize != QSize(0, 0)) {
@@ -13,21 +11,18 @@ ViewerWidget::ViewerWidget(QSize imgSize, QWidget* parent)
 		setDataPtr();
 	}
 }
-ViewerWidget::~ViewerWidget()
-{
+ViewerWidget::~ViewerWidget(){
 	delete painter;
 	delete img;
 }
-void ViewerWidget::resizeWidget(QSize size)
-{
+void ViewerWidget::resizeWidget(QSize size){
 	this->resize(size);
 	this->setMinimumSize(size);
 	this->setMaximumSize(size);
 }
 
 //Image functions
-bool ViewerWidget::setImage(const QImage& inputImg)
-{
+bool ViewerWidget::setImage(const QImage& inputImg){
 	if (img != nullptr) {
 		delete painter;
 		delete img;
@@ -43,8 +38,8 @@ bool ViewerWidget::setImage(const QImage& inputImg)
 
 	return true;
 }
-bool ViewerWidget::isEmpty()
-{
+
+bool ViewerWidget::isEmpty(){
 	if (img == nullptr) {
 		return true;
 	}
@@ -55,8 +50,7 @@ bool ViewerWidget::isEmpty()
 	return false;
 }
 
-bool ViewerWidget::changeSize(int width, int height)
-{
+bool ViewerWidget::changeSize(int width, int height){
 	QSize newSize(width, height);
 
 	if (newSize != QSize(0, 0)) {
@@ -79,8 +73,7 @@ bool ViewerWidget::changeSize(int width, int height)
 	return true;
 }
 
-void ViewerWidget::setPixel(int x, int y, uchar r, uchar g, uchar b, uchar a)
-{
+void ViewerWidget::setPixel(int x, int y, uchar r, uchar g, uchar b, uchar a){
 	r = r > 255 ? 255 : (r < 0 ? 0 : r);
 	g = g > 255 ? 255 : (g < 0 ? 0 : g);
 	b = b > 255 ? 255 : (b < 0 ? 0 : b);
@@ -92,8 +85,7 @@ void ViewerWidget::setPixel(int x, int y, uchar r, uchar g, uchar b, uchar a)
 	data[startbyte + 2] = r;
 	data[startbyte + 3] = a;
 }
-void ViewerWidget::setPixel(int x, int y, double valR, double valG, double valB, double valA)
-{
+void ViewerWidget::setPixel(int x, int y, double valR, double valG, double valB, double valA){
 	valR = valR > 1 ? 1 : (valR < 0 ? 0 : valR);
 	valG = valG > 1 ? 1 : (valG < 0 ? 0 : valG);
 	valB = valB > 1 ? 1 : (valB < 0 ? 0 : valB);
@@ -105,8 +97,7 @@ void ViewerWidget::setPixel(int x, int y, double valR, double valG, double valB,
 	data[startbyte + 2] = static_cast<uchar>(255 * valR);
 	data[startbyte + 3] = static_cast<uchar>(255 * valA);
 }
-void ViewerWidget::setPixel(int x, int y, const QColor& color)
-{
+void ViewerWidget::setPixel(int x, int y, const QColor& color){
 	if (color.isValid()) {
 		size_t startbyte = y * img->bytesPerLine() + x * 4;
 
@@ -118,23 +109,20 @@ void ViewerWidget::setPixel(int x, int y, const QColor& color)
 }
 
 //Draw functions
-void ViewerWidget::drawLine(QPoint start, QPoint end, QColor color, int algType)
-{
+void ViewerWidget::drawLine(QPoint start, QPoint end, QColor color, int algType){
 	painter->setPen(QPen(color));
 	painter->drawLine(start, end);
 
 	update();
 }
 
-void ViewerWidget::clear()
-{
+void ViewerWidget::clear(){
 	img->fill(Qt::white);
 	update();
 }
 
 //Slots
-void ViewerWidget::paintEvent(QPaintEvent* event)
-{
+void ViewerWidget::paintEvent(QPaintEvent* event){
 	QPainter painter(this);
 	QRect area = event->rect();
 	painter.drawImage(area, *img, area);

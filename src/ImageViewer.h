@@ -5,8 +5,7 @@
 #include "ui_ImageViewer.h"
 #include "ViewerWidget.h"
 
-class ImageViewer : public QMainWindow
-{
+class ImageViewer : public QMainWindow{
 	Q_OBJECT
 
 public:
