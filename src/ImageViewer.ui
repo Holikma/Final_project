@@ -25,7 +25,7 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>688</width>
+         <width>578</width>
          <height>654</height>
         </rect>
        </property>
@@ -82,11 +82,27 @@
      <item>
       <widget class="QGroupBox" name="groupBox">
        <property name="title">
-        <string>Color</string>
+        <string>Border Color</string>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
          <widget class="QPushButton" name="pushButtonSetColor">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBox_3">
+       <property name="title">
+        <string>Fill Color</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_3">
+        <item row="0" column="0">
+         <widget class="QPushButton" name="pushButtonSetFillColor">
           <property name="text">
            <string/>
           </property>
@@ -101,30 +117,53 @@
         <string>Draw</string>
        </property>
        <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="1">
+         <widget class="QPushButton" name="toolButtonRemLayer">
+          <property name="text">
+           <string>Remove Layer</string>
+          </property>
+         </widget>
+        </item>
         <item row="1" column="1">
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+         <widget class="QPushButton" name="toolButtonCircle">
+          <property name="text">
+           <string>Circle</string>
           </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
+          <property name="checkable">
+           <bool>true</bool>
           </property>
-         </spacer>
+          <property name="autoExclusive">
+           <bool>false</bool>
+          </property>
+         </widget>
         </item>
         <item row="1" column="0">
-         <widget class="QToolButton" name="toolButtonDrawLine">
+         <widget class="QPushButton" name="toolButtonDrawLine">
           <property name="text">
            <string>Line</string>
           </property>
           <property name="checkable">
            <bool>true</bool>
           </property>
+          <property name="autoExclusive">
+           <bool>false</bool>
+          </property>
          </widget>
         </item>
-        <item row="0" column="0" colspan="2">
+        <item row="1" column="2">
+         <widget class="QPushButton" name="toolButtonPolygon">
+          <property name="text">
+           <string>Polygon</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="autoExclusive">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
          <widget class="QComboBox" name="comboBoxLineAlg">
           <item>
            <property name="text">
@@ -138,10 +177,17 @@
           </item>
          </widget>
         </item>
-        <item row="1" column="2">
-         <widget class="QPushButton" name="pushButtonAddLayer">
+        <item row="0" column="2">
+         <widget class="QPushButton" name="toolButtonAddLayer">
           <property name="text">
-           <string>Add_layer</string>
+           <string>Add Layer</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <widget class="QPushButton" name="toolButtonMoveUp">
+          <property name="text">
+           <string>Move Layer Up</string>
           </property>
          </widget>
         </item>
@@ -149,20 +195,141 @@
       </widget>
      </item>
      <item>
-      <widget class="QListWidget" name="list_Layers"/>
+      <widget class="QListWidget" name="ListLayers"/>
      </item>
      <item>
-      <spacer name="verticalSpacer">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
+      <widget class="QGroupBox" name="groupBox_4">
+       <property name="title">
+        <string>Transformations</string>
        </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>40</height>
-        </size>
-       </property>
-      </spacer>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="0" colspan="2">
+         <widget class="QPushButton" name="toolButtonTranslation">
+          <property name="text">
+           <string>Translation</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QPushButton" name="toolButtonScale">
+          <property name="text">
+           <string>Scale</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="2">
+         <widget class="QDoubleSpinBox" name="DoubleSpinBoxShearX">
+          <property name="minimum">
+           <double>-1.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>1.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.100000000000000</double>
+          </property>
+          <property name="value">
+           <double>0.500000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QPushButton" name="toolButtonRotate">
+          <property name="text">
+           <string>Rotate</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Set Filling Algoritm:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QPushButton" name="toolButtonFlip">
+          <property name="text">
+           <string>Flip</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QPushButton" name="toolButtonFill">
+          <property name="text">
+           <string>Fill</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="autoRepeat">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QSpinBox" name="spinBoxRot"/>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Set Angle of Rotation:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0" colspan="2">
+         <widget class="QPushButton" name="toolButtonShear">
+          <property name="text">
+           <string>Shear</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QComboBox" name="FillAlgorithm">
+          <item>
+           <property name="text">
+            <string>Near. Neig</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="3" column="2">
+         <widget class="QDoubleSpinBox" name="DoubleSpinBoxScaleY">
+          <property name="minimum">
+           <double>-1.250000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>1.250000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.100000000000000</double>
+          </property>
+          <property name="value">
+           <double>0.750000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QDoubleSpinBox" name="DoubleSpinBoxScaleX">
+          <property name="minimum">
+           <double>-1.250000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>1.250000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.100000000000000</double>
+          </property>
+          <property name="value">
+           <double>0.750000000000000</double>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </item>
     </layout>
    </widget>

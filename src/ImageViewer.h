@@ -16,6 +16,7 @@ private:
 	ViewerWidget* vW;
 
 	QColor globalColor;
+	QColor globalFillColor;
 	QSettings settings;
 	QMessageBox msgBox;
 
@@ -38,6 +39,11 @@ private:
 	bool openImage(QString filename);
 	bool saveImage(QString filename);
 
+	void List_Layers();
+	void DisableTools();
+	void EnableTools();
+	void DisableDrawTools();
+
 private slots:
 	void on_actionOpen_triggered();
 	void on_actionSave_as_triggered();
@@ -46,7 +52,18 @@ private slots:
 
 	//Tools slots
 	void on_pushButtonSetColor_clicked();
-	void on_pushButtonAddLayer_clicked();
-	void on_pushButtonRemoveLayer_clicked() {};
-	void on_list_Layers_itemClicked(QListWidgetItem* item);
+	void on_pushButtonSetFillColor_clicked();
+	void on_toolButtonAddLayer_clicked();
+	void on_toolButtonRemLayer_clicked();
+	void on_ListLayers_itemClicked(QListWidgetItem* item);
+	void on_toolButtonMoveUp_clicked();
+	void on_toolButtonTranslation_clicked();
+	void on_toolButtonFlip_clicked();
+	void on_toolButtonRotate_clicked();
+	void on_toolButtonScale_clicked();
+	void on_toolButtonShear_clicked();
+	void on_toolButtonFill_clicked();
+	void on_toolButtonDrawLine_clicked();
+	void on_toolButtonCircle_clicked();
+	void on_toolButtonPolygon_clicked();
 };
