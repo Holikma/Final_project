@@ -528,7 +528,6 @@ void ViewerWidget::Flip(Layer* layer) {
 	update();
 }
 void ViewerWidget::ScanLine(QVector<QPoint> points, QColor color) {
-	qDebug() << "Scanline";
 	QVector<QPoint> polygon = points;
 	QVector<Edge> edges;
 
