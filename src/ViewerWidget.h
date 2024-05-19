@@ -111,7 +111,10 @@ public:
 	void BresenhamCircle(Layer layer);
 	void Cyrus_Beck(Layer* layer);
 	QVector<QPoint> Sutherland_Hodgeman(Layer* layer);
+	QVector<QPoint> Sutherland_Hodgeman(QVector<QPoint> points, QColor color, int alg);
 	void drawPolygon(Layer layer);
+	void drawBezier(Layer layer);
+	void drawSquare(Layer layer);
 	void ZBuffer();
 	void Add_Layer();
 	void Translation(Layer* layer, int dx, int dy);

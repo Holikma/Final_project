@@ -118,6 +118,45 @@ void ImageViewer::ViewerWidgetMouseButtonPress(ViewerWidget* w, QEvent* event) {
 		w->update();
 		ui->toolButtonPolygon->setChecked(false);
 	}
+	if (e->button() == Qt::LeftButton && ui->toolButtonBezier->isChecked() && ui->ListLayers->currentItem() != nullptr) {
+		if (w->Get_Layer(ui->ListLayers->currentRow())->Get_Points().size() == 0) {
+			w->setDrawLineBegin(e->pos());
+			w->Get_Layer(ui->ListLayers->currentRow())->Add_Point(w->getDrawLineBegin());
+			w->Get_Layer(ui->ListLayers->currentRow())->Set_Type(3);
+			w->setPixel(e->pos().x(), e->pos().y(), Qt::black);
+			w->update();
+		}
+		else {
+			w->Get_Layer(ui->ListLayers->currentRow())->Add_Point(e->pos());
+			w->setPixel(e->pos().x(), e->pos().y(), Qt::black);
+		}
+	}
+	if (e->button() == Qt::RightButton && ui->toolButtonBezier->isChecked() && ui->ListLayers->currentItem() != nullptr) {
+		w->ZBuffer();
+		w->update();
+		EnableTools();
+		ui->toolButtonBezier->setChecked(false);
+	}
+	if (e->button() == Qt::LeftButton && ui->toolButtonSquare->isChecked() && ui->ListLayers->currentItem() != nullptr) {
+		if (w->getDrawLineActivated()) {
+			w->Get_Layer(ui->ListLayers->currentRow())->Add_Point(e->pos());
+			w->setDrawLineActivated(false);
+			w->ZBuffer();
+			w->update();
+			EnableTools();
+			ui->toolButtonDrawLine->setChecked(false);
+		}
+		else {
+			if (w->Get_Layer(ui->ListLayers->currentRow())->Get_Points().size() == 0) {
+				w->setDrawLineBegin(e->pos());
+				w->setDrawLineActivated(true);
+				w->Get_Layer(ui->ListLayers->currentRow())->Add_Point(w->getDrawLineBegin());
+				w->Get_Layer(ui->ListLayers->currentRow())->Set_Type(4);
+				w->setPixel(e->pos().x(), e->pos().y(), Qt::black);
+				w->update();
+			}
+		}
+}
 }
 void ImageViewer::ViewerWidgetMouseButtonRelease(ViewerWidget* w, QEvent* event){
 	QMouseEvent* e = static_cast<QMouseEvent*>(event);
@@ -147,7 +186,6 @@ void ImageViewer::ViewerWidgetEnter(ViewerWidget* w, QEvent* event){
 void ImageViewer::ViewerWidgetWheel(ViewerWidget* w, QEvent* event){
 	QWheelEvent* wheelEvent = static_cast<QWheelEvent*>(event);
 }
-
 //ImageViewer Events
 void ImageViewer::closeEvent(QCloseEvent* event){
 	if (QMessageBox::Yes == QMessageBox::question(this, "Close Confirmation", "Are you sure you want to exit?", QMessageBox::Yes | QMessageBox::No))
@@ -158,7 +196,6 @@ void ImageViewer::closeEvent(QCloseEvent* event){
 		event->ignore();
 	}
 }
-
 //Image functions
 bool ImageViewer::openImage(QString filename){
 	QImage loadedImg(filename);
@@ -174,8 +211,6 @@ bool ImageViewer::saveImage(QString filename){
 	QImage* img = vW->getImage();
 	return img->save(filename, extension.toStdString().c_str());
 }
-
-
 //Slots
 void ImageViewer::on_actionOpen_triggered(){
 	QString folder = settings.value("folder_img_load_path", "").toString();
@@ -248,6 +283,8 @@ void ImageViewer::List_Layers() {
 	vW->ZBuffer();
 }
 void ImageViewer::DisableTools() {
+	ui->toolButtonBezier->setEnabled(false);
+	ui->toolButtonSquare->setEnabled(false);
 	ui->toolButtonMoveDown->setEnabled(false);
 	ui->comboBoxLineAlg->setEnabled(false);
 	ui->toolButtonDrawLine->setEnabled(false);
@@ -263,6 +300,8 @@ void ImageViewer::DisableTools() {
 	ui->toolButtonFill->setEnabled(false);
 }
 void ImageViewer::EnableTools() {
+	ui->toolButtonBezier->setEnabled(true);
+	ui->toolButtonSquare->setEnabled(true);
 	ui->toolButtonMoveDown->setEnabled(true);
 	ui->toolButtonDrawLine->setEnabled(true);
 	ui->toolButtonCircle->setEnabled(true);
@@ -282,6 +321,8 @@ void ImageViewer::DisableDrawTools() {
 	ui->toolButtonDrawLine->setEnabled(false);
 	ui->toolButtonCircle->setEnabled(false);
 	ui->toolButtonPolygon->setEnabled(false);
+	ui->toolButtonBezier->setEnabled(false);
+	ui->toolButtonSquare->setEnabled(false);
 }
 void ImageViewer::on_toolButtonAddLayer_clicked(){
 	vW->Add_Layer();
@@ -487,4 +528,76 @@ void ImageViewer::on_toolButtonSaveData_clicked() {
 void ImageViewer::on_toolButtonLoadData_clicked() {
 	vW->Load_Data();
 	List_Layers();
+}
+void ImageViewer::on_toolButtonBezier_clicked() {
+	if (ui->toolButtonBezier->isChecked()) {
+		ui->toolButtonSquare->setEnabled(false);
+		ui->toolButtonMoveDown->setEnabled(false);
+		ui->comboBoxLineAlg->setEnabled(false);
+		ui->toolButtonDrawLine->setEnabled(false);
+		ui->toolButtonCircle->setEnabled(false);
+		ui->toolButtonPolygon->setEnabled(false);
+		ui->toolButtonAddLayer->setEnabled(false);
+		ui->toolButtonRemLayer->setEnabled(false);
+		ui->toolButtonMoveUp->setEnabled(false);
+		ui->toolButtonTranslation->setEnabled(false);
+		ui->toolButtonFlip->setEnabled(false);
+		ui->toolButtonRotate->setEnabled(false);
+		ui->toolButtonScale->setEnabled(false);
+		ui->toolButtonShear->setEnabled(false);
+		ui->toolButtonFill->setEnabled(false);
+	}
+	else {
+		ui->toolButtonSquare->setEnabled(true);
+		ui->toolButtonMoveDown->setEnabled(true);
+		ui->comboBoxLineAlg->setEnabled(true);
+		ui->toolButtonDrawLine->setEnabled(true);
+		ui->toolButtonCircle->setEnabled(true);
+		ui->toolButtonPolygon->setEnabled(true);
+		ui->toolButtonAddLayer->setEnabled(true);
+		ui->toolButtonRemLayer->setEnabled(true);
+		ui->toolButtonMoveUp->setEnabled(true);
+		ui->toolButtonTranslation->setEnabled(true);
+		ui->toolButtonFlip->setEnabled(true);
+		ui->toolButtonRotate->setEnabled(true);
+		ui->toolButtonScale->setEnabled(true);
+		ui->toolButtonShear->setEnabled(true);
+		ui->toolButtonFill->setEnabled(true);
+	}
+}
+void ImageViewer::on_toolButtonSquare_clicked() {
+	if (ui->toolButtonSquare->isChecked()) {
+		ui->toolButtonBezier->setEnabled(false);
+		ui->toolButtonMoveDown->setEnabled(false);
+		ui->comboBoxLineAlg->setEnabled(false);
+		ui->toolButtonDrawLine->setEnabled(false);
+		ui->toolButtonCircle->setEnabled(false);
+		ui->toolButtonPolygon->setEnabled(false);
+		ui->toolButtonAddLayer->setEnabled(false);
+		ui->toolButtonRemLayer->setEnabled(false);
+		ui->toolButtonMoveUp->setEnabled(false);
+		ui->toolButtonTranslation->setEnabled(false);
+		ui->toolButtonFlip->setEnabled(false);
+		ui->toolButtonRotate->setEnabled(false);
+		ui->toolButtonScale->setEnabled(false);
+		ui->toolButtonShear->setEnabled(false);
+		ui->toolButtonFill->setEnabled(false);
+	}
+	else {
+		ui->toolButtonBezier->setEnabled(true);
+		ui->toolButtonMoveDown->setEnabled(true);
+		ui->comboBoxLineAlg->setEnabled(true);
+		ui->toolButtonDrawLine->setEnabled(true);
+		ui->toolButtonCircle->setEnabled(true);
+		ui->toolButtonPolygon->setEnabled(true);
+		ui->toolButtonAddLayer->setEnabled(true);
+		ui->toolButtonRemLayer->setEnabled(true);
+		ui->toolButtonMoveUp->setEnabled(true);
+		ui->toolButtonTranslation->setEnabled(true);
+		ui->toolButtonFlip->setEnabled(true);
+		ui->toolButtonRotate->setEnabled(true);
+		ui->toolButtonScale->setEnabled(true);
+		ui->toolButtonShear->setEnabled(true);
+		ui->toolButtonFill->setEnabled(true);
+	}
 }

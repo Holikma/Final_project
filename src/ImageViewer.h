@@ -69,4 +69,6 @@ private slots:
 	void on_toolButtonPolygon_clicked();
 	void on_toolButtonSaveData_clicked();
 	void on_toolButtonLoadData_clicked();
+	void on_toolButtonBezier_clicked();
+	void on_toolButtonSquare_clicked();
 };

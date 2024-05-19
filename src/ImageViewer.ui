@@ -117,16 +117,10 @@
         <string>Draw</string>
        </property>
        <layout class="QGridLayout" name="gridLayout">
-        <item row="2" column="1">
-         <widget class="QPushButton" name="toolButtonDrawLine">
+        <item row="0" column="1">
+         <widget class="QPushButton" name="toolButtonAddLayer">
           <property name="text">
-           <string>Line</string>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <property name="autoExclusive">
-           <bool>false</bool>
+           <string>Add Layer</string>
           </property>
          </widget>
         </item>
@@ -143,10 +137,10 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="3">
-         <widget class="QPushButton" name="toolButtonPolygon">
+        <item row="2" column="1">
+         <widget class="QPushButton" name="toolButtonDrawLine">
           <property name="text">
-           <string>Polygon</string>
+           <string>Line</string>
           </property>
           <property name="checkable">
            <bool>true</bool>
@@ -177,13 +171,6 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="1">
-         <widget class="QPushButton" name="toolButtonAddLayer">
-          <property name="text">
-           <string>Add Layer</string>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="2">
          <widget class="QPushButton" name="toolButtonMoveUp">
           <property name="text">
@@ -191,10 +178,43 @@
           </property>
          </widget>
         </item>
+        <item row="2" column="3">
+         <widget class="QPushButton" name="toolButtonPolygon">
+          <property name="text">
+           <string>Polygon</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="autoExclusive">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
         <item row="0" column="3">
          <widget class="QPushButton" name="toolButtonMoveDown">
           <property name="text">
            <string>Move Layer Up</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="2">
+         <widget class="QPushButton" name="toolButtonSquare">
+          <property name="text">
+           <string>Square</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QPushButton" name="toolButtonBezier">
+          <property name="text">
+           <string>Bezier</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
           </property>
          </widget>
         </item>

@@ -330,6 +330,58 @@ QVector<QPoint> ViewerWidget::Sutherland_Hodgeman(Layer* layer) {
 	return polygon;
 
 }
+QVector<QPoint> ViewerWidget::Sutherland_Hodgeman(QVector<QPoint> points, QColor color, int alg) {
+	QVector<QPoint> W; // Initialize a vector to hold the vertices of the clipped polygon
+	QVector<QPoint> polygon = points;
+	int edges[4] = { 0,0,-499,-499 };
+
+	for (int j = 0; j < 4; j++) {
+		if (polygon.size() == 0) {
+			break;
+		}
+		QPoint S = polygon[polygon.size() - 1]; // Initialize S to the last vertex
+		double xmin = edges[j];
+		for (int i = 0; i < polygon.size(); i++) {
+			QPoint Vi = polygon[i];
+
+			if (Vi.x() >= xmin) {
+				if (S.x() >= xmin) {
+					W.append(Vi);
+				}
+				else {
+					// Calculate the intersection point P between the clipping edge and the line segment formed by S and Vi
+					QPoint P = QPoint(xmin, S.y() + (xmin - S.x()) * (Vi.y() - S.y()) / (double)(Vi.x() - S.x()));
+					W.append(P);
+					W.append(Vi);
+				}
+			}
+			else {
+				if (S.x() >= xmin) {
+					QPoint P = QPoint(xmin, S.y() + (xmin - S.x()) * (Vi.y() - S.y()) / (double)(Vi.x() - S.x()));
+					W.append(P);
+				}
+			}
+			S = Vi;
+		}
+		polygon = W;
+		W.clear();
+		// Rotate the polygon clockwise to handle the next clipping edge
+		for (int k = 0; k < polygon.size(); k++) {
+			QPoint swap = polygon[k];
+			polygon[k].setX(swap.y());
+			polygon[k].setY(-swap.x());
+		}
+	}
+
+	for (int i = 0; i < polygon.size() - 1; i++) {
+		drawLine(polygon[i], polygon[i + 1], color, alg);
+	}
+	if (polygon.size() > 1) {
+		drawLine(polygon[polygon.size() - 1], polygon[0], color, alg);
+	}
+	update();
+	return polygon;
+}
 void ViewerWidget::drawPolygon(Layer layer) {
 	for (int i = 0; i < layer.Get_Points().size(); i++) {
 		if (i == layer.Get_Points().size() - 1) {
@@ -341,6 +393,58 @@ void ViewerWidget::drawPolygon(Layer layer) {
 	}
 	QVector<QPoint> clippedPolygon = Sutherland_Hodgeman(&layer);
 	// Fill the polygon if the fill state is true
+	if (layer.Get_Fill_State()) {
+		Fill(clippedPolygon, layer.Get_Fill_Color());
+	}
+}
+void ViewerWidget::drawBezier(Layer layer) {
+	QVector<QPoint> points = layer.Get_Points();
+	if (points.size() < 3) {
+		return;
+	}
+	QColor color = layer.Get_Border_Color();
+	double t = 0;
+	double deltaT = 0.001;
+	QPoint Q0 = points[0];
+
+	while (t <= 1) {
+		QVector<QPoint> tempPoints = points;
+
+		for (int i = 1; i < tempPoints.size(); i++) {
+			for (int j = 0; j < tempPoints.size() - i; j++) {
+				tempPoints[j] = tempPoints[j] * (1 - t) + tempPoints[j + 1] * t;
+			}
+		}
+
+		QPoint p = tempPoints[0];
+		// Assuming isInside() and setPixel() are globally accessible functions
+		if (isInside(p.x(), p.y())) {
+			setPixel(p.x(), p.y(), color);
+		}
+
+		Q0 = p;
+		t += deltaT;
+	}
+
+	// Ensure the curve ends at the last control point
+	if (t < 1.0) {
+		QPoint lastPoint = points.last();
+		if (isInside(lastPoint.x(), lastPoint.y())) {
+			setPixel(lastPoint.x(), lastPoint.y(), color);
+		}
+	}
+}
+void ViewerWidget::drawSquare(Layer layer) {
+	//draw square based on 2 diagonal points
+	QPoint start = layer.Get_Point(0);
+	QPoint end = layer.Get_Point(1);
+	QColor color = layer.Get_Border_Color();
+	drawLine(start, QPoint(start.x(), end.y()), color, layer.Get_Draw_Type());
+	drawLine(start, QPoint(end.x(), start.y()), color, layer.Get_Draw_Type());
+	drawLine(end, QPoint(start.x(), end.y()), color, layer.Get_Draw_Type());
+	drawLine(end, QPoint(end.x(), start.y()), color, layer.Get_Draw_Type());
+	QVector<QPoint> points = { start, QPoint(start.x(), end.y()), end, QPoint(end.x(), start.y()) };
+	QVector<QPoint> clippedPolygon = Sutherland_Hodgeman(points, layer.Get_Border_Color(), layer.Get_Draw_Type());
 	if (layer.Get_Fill_State()) {
 		Fill(clippedPolygon, layer.Get_Fill_Color());
 	}
@@ -383,6 +487,12 @@ void ViewerWidget::ZBuffer() {
 		}
 		if (layer.Get_Points().size() > 2 && layer.Get_Type() == 2) {
 			drawPolygon(layer);
+		}
+		if (layer.Get_Type() == 3) {
+			drawBezier(layer);
+		}
+		if (layer.Get_Type() == 4) {
+			drawSquare(layer);
 		}
 	}
 	update();
@@ -576,7 +686,6 @@ void ViewerWidget::FillCircle(Layer* layer) {
 		}
 	}
 }
-
 bool ViewerWidget::Save_Data() {
 	QFile file = QFileDialog::getOpenFileName(this, tr("Open File"), "", tr("Text Files (*.txt)"));
 	if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -642,7 +751,6 @@ bool ViewerWidget::Load_Data() {
 
 	return true;
 }
-
 void ViewerWidget::Clear_Data() {
 	Layers.clear();
 	clear();
