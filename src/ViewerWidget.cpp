@@ -9,11 +9,9 @@ void Layer::Print_Info() {
 	qDebug() << "Border color: " << BorderColor;
 	qDebug() << "Fill color: " << FillColor;
 	qDebug() << "Fill: " << fill_state;
-	qDebug() << "Border: " << border_state;
 	qDebug() << "";
 
 }
-
 ViewerWidget::ViewerWidget(QSize imgSize, QWidget* parent): QWidget(parent){
 	setAttribute(Qt::WA_StaticContents);
 	setMouseTracking(true);
@@ -34,7 +32,6 @@ void ViewerWidget::resizeWidget(QSize size){
 	this->setMinimumSize(size);
 	this->setMaximumSize(size);
 }
-
 //Image functions
 bool ViewerWidget::setImage(const QImage& inputImg){
 	if (img != nullptr) {
@@ -118,7 +115,6 @@ void ViewerWidget::setPixel(int x, int y, const QColor& color){
 		data[startbyte + 3] = color.alpha();
 	}
 }
-
 //Draw functions
 void ViewerWidget::drawLine(QPoint start, QPoint end, QColor color, int algType){
 	painter->setPen(QPen(color));
@@ -134,15 +130,12 @@ void ViewerWidget::clear(){
 	img->fill(Qt::white);
 	update();
 }
-
 //Slots
 void ViewerWidget::paintEvent(QPaintEvent* event){
 	QPainter painter(this);
 	QRect area = event->rect();
 	painter.drawImage(area, *img, area);
 }
-
-
 //custom functions
 void ViewerWidget::drawLine(Layer layer){
 	if (layer.Get_Draw_Type() == 0) {
@@ -235,6 +228,9 @@ void ViewerWidget::BresenhamCircle(Layer layer) {
 		}
 		x++;
 	}
+	if (layer.Get_Fill_State()) {
+		FillCircle(&layer);
+	}
 }
 void ViewerWidget::Cyrus_Beck(Layer* layer) {
 	QVector<QPoint> points = layer->Get_Points();
@@ -244,7 +240,6 @@ void ViewerWidget::Cyrus_Beck(Layer* layer) {
 	// Initialize tl (t lower bound) to 0 and tu (t upper bound) to 1
 	double tl = 0;
 	double tu = 1;
-
 	// Define the boundary of the clipping region (in this case, a rectangle)
 	QVector<QPoint> plane = { QPoint(0, 0), QPoint(0, img->height()), QPoint(img->width(), img->height()), QPoint(img->width(), 0) };
 
@@ -282,6 +277,59 @@ void ViewerWidget::Cyrus_Beck(Layer* layer) {
 		drawLine(newStart, newEnd, layer->Get_Border_Color(), layer->Get_Draw_Type());
 	}
 }
+QVector<QPoint> ViewerWidget::Sutherland_Hodgeman(Layer* layer) {
+	QVector<QPoint> W; // Initialize a vector to hold the vertices of the clipped polygon
+	QVector<QPoint> polygon = layer->Get_Points();
+	int edges[4] = { 0,0,-499,-499 };
+
+	for (int j = 0; j < 4; j++) {
+		if (polygon.size() == 0) {
+			break;
+		}
+		QPoint S = polygon[polygon.size() - 1]; // Initialize S to the last vertex
+		double xmin = edges[j];
+		for (int i = 0; i < polygon.size(); i++) {
+			QPoint Vi = polygon[i];
+
+			if (Vi.x() >= xmin) {
+				if (S.x() >= xmin) {
+					W.append(Vi);
+				}
+				else {
+					// Calculate the intersection point P between the clipping edge and the line segment formed by S and Vi
+					QPoint P = QPoint(xmin, S.y() + (xmin - S.x()) * (Vi.y() - S.y()) / (double)(Vi.x() - S.x()));
+					W.append(P);
+					W.append(Vi);
+				}
+			}
+			else {
+				if (S.x() >= xmin) {
+					QPoint P = QPoint(xmin, S.y() + (xmin - S.x()) * (Vi.y() - S.y()) / (double)(Vi.x() - S.x()));
+					W.append(P);
+				}
+			}
+			S = Vi;
+		}
+		polygon = W;
+		W.clear();
+		// Rotate the polygon clockwise to handle the next clipping edge
+		for (int k = 0; k < polygon.size(); k++) {
+			QPoint swap = polygon[k];
+			polygon[k].setX(swap.y());
+			polygon[k].setY(-swap.x());
+		}
+	}
+
+	for (int i = 0; i < polygon.size() - 1; i++) {
+		drawLine(polygon[i], polygon[i + 1], layer->Get_Border_Color(), layer->Get_Draw_Type());
+	}
+	if (polygon.size() > 1) {
+		drawLine(polygon[polygon.size() - 1], polygon[0], layer->Get_Border_Color(), layer->Get_Draw_Type());
+	}
+	update();
+	return polygon;
+
+}
 void ViewerWidget::drawPolygon(Layer layer) {
 	for (int i = 0; i < layer.Get_Points().size(); i++) {
 		if (i == layer.Get_Points().size() - 1) {
@@ -291,10 +339,10 @@ void ViewerWidget::drawPolygon(Layer layer) {
 			drawLine(layer.Get_Point(i), layer.Get_Point(i + 1), layer.Get_Border_Color(), layer.Get_Draw_Type());
 		}
 	}
-	QVector<QPoint> projected_points;
-
+	QVector<QPoint> clippedPolygon = Sutherland_Hodgeman(&layer);
+	// Fill the polygon if the fill state is true
 	if (layer.Get_Fill_State()) {
-		Fill(&layer);
+		Fill(clippedPolygon, layer.Get_Fill_Color());
 	}
 }
 void ViewerWidget::Swap_Layers_Depth(int index1, int index2) {
@@ -511,4 +559,92 @@ void ViewerWidget::Fill(Layer* layer) {
 	QColor color = layer->Get_Fill_Color();
 	ScanLine(points, color);
 }
+void ViewerWidget::Fill(QVector<QPoint> points,QColor color) {
+	ScanLine(points, color);
 
+}
+void ViewerWidget::FillCircle(Layer* layer) {
+	//fill circle with color
+	int radius = sqrt(pow(layer->Get_Points()[1].x() - layer->Get_Points()[0].x(), 2) + pow(layer->Get_Points()[1].y() - layer->Get_Points()[0].y(), 2));
+	for (int i = -radius; i <= radius; i++) {
+		for (int j = -radius; j <= radius; j++) {
+			if (i * i + j * j <= radius * radius) {
+				if (isInside(layer->Get_Points()[0].x() + i, layer->Get_Points()[0].y() + j)) {
+					setPixel(layer->Get_Points()[0].x() + i, layer->Get_Points()[0].y() + j, layer->Get_Fill_Color());
+				}
+			}
+		}
+	}
+}
+
+bool ViewerWidget::Save_Data() {
+	QFile file = QFileDialog::getOpenFileName(this, tr("Open File"), "", tr("Text Files (*.txt)"));
+	if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+		qDebug() << "File not opened";
+		return false;
+	}
+	QTextStream out(&file);
+	out << img->width() << " " << img->height() << "\n";
+	out << Layers.size() << "\n";
+	for (int i = 0; i < Layers.size(); i++) {
+		Layer layer = Layers[i];
+		out << layer.Get_LayerID() << ";";
+		out << layer.Get_Layer_Depth() << ";";
+		out << layer.Get_Type() << ";";
+		out << layer.Get_Points().size() << ";";
+		for (int j = 0; j < layer.Get_Points().size(); j++) {
+			out << layer.Get_Point(j).x() << "," << layer.Get_Point(j).y() << ",";
+		}
+		out << ";";
+		out << layer.Get_Border_Color().red() << "," << layer.Get_Border_Color().green() << "," << layer.Get_Border_Color().blue() << ";";
+		out << layer.Get_Fill_Color().red() << "," << layer.Get_Fill_Color().green() << "," << layer.Get_Fill_Color().blue() << ";";
+		out << layer.Get_Fill_State() << "\n";
+	}
+	return true;
+}
+bool ViewerWidget::Load_Data() {
+	//choose saving file
+	QFile file = QFileDialog::getOpenFileName(this, tr("Open File"), "", tr("Text Files (*.txt)"));
+	if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+		qDebug() << "File not opened";
+		return false;
+	}
+	Clear_Data();
+	QTextStream in(&file);
+	QString line = in.readLine();
+	QStringList list = line.split(" ");
+	int width = list[0].toInt();
+	int height = list[1].toInt();
+	changeSize(width, height);
+	int layers = in.readLine().toInt();
+	for (int i = 0; i < layers; i++) {
+		Layer layer;
+		QString line = in.readLine();
+		QStringList list = line.split(";");
+		layer.Set_LayerID(list[0].toInt());
+		layer.Set_Layer_Depth(list[1].toInt());
+		layer.Set_Type(list[2].toInt());
+		int points = list[3].toInt();
+		QStringList pointsList = list[4].split(",");
+		for (int j = 0; j < 2*points - 1; j+=2 ) {
+			QPoint p(pointsList[j].toFloat(), pointsList[j + 1].toFloat());
+			layer.Add_Point(p);
+		}
+		QStringList borderList = list[5].split(",");
+		QColor border(borderList[0].toInt(), borderList[1].toInt(), borderList[2].toInt());
+		layer.Set_Border_Color(border);
+		QStringList fillList = list[6].split(",");
+		QColor fill(fillList[0].toInt(), fillList[1].toInt(), fillList[2].toInt());
+		layer.Set_Fill_Color(fill);
+		layer.Set_Fill_State(list[7].toInt());
+		Layers.push_back(layer);
+	}
+
+	return true;
+}
+
+void ViewerWidget::Clear_Data() {
+	Layers.clear();
+	clear();
+	update();
+}

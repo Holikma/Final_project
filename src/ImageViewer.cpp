@@ -248,6 +248,7 @@ void ImageViewer::List_Layers() {
 	vW->ZBuffer();
 }
 void ImageViewer::DisableTools() {
+	ui->toolButtonMoveDown->setEnabled(false);
 	ui->comboBoxLineAlg->setEnabled(false);
 	ui->toolButtonDrawLine->setEnabled(false);
 	ui->toolButtonCircle->setEnabled(false);
@@ -262,6 +263,7 @@ void ImageViewer::DisableTools() {
 	ui->toolButtonFill->setEnabled(false);
 }
 void ImageViewer::EnableTools() {
+	ui->toolButtonMoveDown->setEnabled(true);
 	ui->toolButtonDrawLine->setEnabled(true);
 	ui->toolButtonCircle->setEnabled(true);
 	ui->toolButtonPolygon->setEnabled(true);
@@ -319,11 +321,23 @@ void ImageViewer::on_toolButtonMoveUp_clicked() {
 		}
 		vW->Swap_Layers_Depth(index1, index2);
 		//sort by depth;
-		qDebug() << "Sorting by depth";
 		QVector<Layer> layers = vW->Get_Layers();
 		std::sort(layers.begin(), layers.end(), [](Layer a, Layer b) {return a.Get_Layer_Depth() < b.Get_Layer_Depth();});
 		vW->Set_Layers(layers);
-		qDebug() << "Sorted by depth";
+		List_Layers();
+	}
+}
+void ImageViewer::on_toolButtonMoveDown_clicked() {
+	if (ui->ListLayers->currentItem() != nullptr) {
+		int index1 = ui->ListLayers->currentRow();
+		int index2 = index1 + 1;
+		if (index2 >= vW->Get_Layers().size()) {
+			return;
+		}
+		vW->Swap_Layers_Depth(index1, index2);
+		QVector<Layer> layers = vW->Get_Layers();
+		std::sort(layers.begin(), layers.end(), [](Layer a, Layer b) {return a.Get_Layer_Depth() < b.Get_Layer_Depth();});
+		vW->Set_Layers(layers);
 		List_Layers();
 	}
 }
@@ -372,7 +386,7 @@ void ImageViewer::on_toolButtonFill_clicked() {
 }
 void ImageViewer::on_toolButtonDrawLine_clicked() {
 	if (ui->toolButtonDrawLine->isChecked()) {
-		ui->FillAlgorithm->setEnabled(false);
+		ui->toolButtonMoveDown->setEnabled(false);
 		ui->comboBoxLineAlg->setEnabled(false);
 		ui->toolButtonCircle->setEnabled(false);
 		ui->toolButtonPolygon->setEnabled(false);
@@ -387,7 +401,7 @@ void ImageViewer::on_toolButtonDrawLine_clicked() {
 		ui->toolButtonFill->setEnabled(false);
 	}
 	else {
-		ui->FillAlgorithm->setEnabled(true);
+		ui->toolButtonMoveDown->setEnabled(true);
 		ui->comboBoxLineAlg->setEnabled(true);
 		ui->toolButtonCircle->setEnabled(true);
 		ui->toolButtonPolygon->setEnabled(true);
@@ -404,7 +418,7 @@ void ImageViewer::on_toolButtonDrawLine_clicked() {
 }
 void ImageViewer::on_toolButtonCircle_clicked() {
 	if (ui->toolButtonCircle->isChecked()) {
-		ui->FillAlgorithm->setEnabled(false);
+		ui->toolButtonMoveDown->setEnabled(false);
 		ui->comboBoxLineAlg->setEnabled(false);
 		ui->toolButtonDrawLine->setEnabled(false);
 		ui->toolButtonPolygon->setEnabled(false);
@@ -419,7 +433,7 @@ void ImageViewer::on_toolButtonCircle_clicked() {
 		ui->toolButtonFill->setEnabled(false);
 	}
 	else {
-		ui->FillAlgorithm->setEnabled(true);
+		ui->toolButtonMoveDown->setEnabled(true);
 		ui->comboBoxLineAlg->setEnabled(true);
 		ui->toolButtonDrawLine->setEnabled(true);
 		ui->toolButtonPolygon->setEnabled(true);
@@ -436,7 +450,7 @@ void ImageViewer::on_toolButtonCircle_clicked() {
 }
 void ImageViewer::on_toolButtonPolygon_clicked() {
 	if (ui->toolButtonPolygon->isChecked()) {
-		ui->FillAlgorithm->setEnabled(false);
+		ui->toolButtonMoveDown->setEnabled(false);
 		ui->comboBoxLineAlg->setEnabled(false);
 		ui->toolButtonDrawLine->setEnabled(false);
 		ui->toolButtonCircle->setEnabled(false);
@@ -451,7 +465,7 @@ void ImageViewer::on_toolButtonPolygon_clicked() {
 		ui->toolButtonFill->setEnabled(false);
 	}
 	else {
-		ui->FillAlgorithm->setEnabled(true);
+		ui->toolButtonMoveDown->setEnabled(true);
 		ui->comboBoxLineAlg->setEnabled(true);
 		ui->toolButtonDrawLine->setEnabled(true);
 		ui->toolButtonCircle->setEnabled(true);
@@ -465,4 +479,12 @@ void ImageViewer::on_toolButtonPolygon_clicked() {
 		ui->toolButtonShear->setEnabled(true);
 		ui->toolButtonFill->setEnabled(true);
 	}
+}
+void ImageViewer::on_toolButtonSaveData_clicked() {
+	vW->Save_Data();
+	List_Layers();
+}
+void ImageViewer::on_toolButtonLoadData_clicked() {
+	vW->Load_Data();
+	List_Layers();
 }

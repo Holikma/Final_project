@@ -57,6 +57,7 @@ private slots:
 	void on_toolButtonRemLayer_clicked();
 	void on_ListLayers_itemClicked(QListWidgetItem* item);
 	void on_toolButtonMoveUp_clicked();
+	void on_toolButtonMoveDown_clicked();
 	void on_toolButtonTranslation_clicked();
 	void on_toolButtonFlip_clicked();
 	void on_toolButtonRotate_clicked();
@@ -66,4 +67,6 @@ private slots:
 	void on_toolButtonDrawLine_clicked();
 	void on_toolButtonCircle_clicked();
 	void on_toolButtonPolygon_clicked();
+	void on_toolButtonSaveData_clicked();
+	void on_toolButtonLoadData_clicked();
 };

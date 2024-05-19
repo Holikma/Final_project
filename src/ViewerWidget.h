@@ -2,6 +2,7 @@
 #include <QtWidgets>
 #include <random>
 #include <qrandom.h>
+#include <iostream>
 
 //class representing a layer in the viewer, contains vector of points
 class Layer {
@@ -15,7 +16,6 @@ class Layer {
 		QColor FillColor = QColor(255, 255, 125);
 		int draw_type = 0;
 		bool fill_state = false;
-		bool border_state = true;
 	public:
 		Layer() {};
 		Layer(QVector<QPoint> points) : points(points) {};
@@ -38,8 +38,6 @@ class Layer {
 		int Get_Draw_Type() { return draw_type; }
 		bool Get_Fill_State() { return fill_state; }
 		void Set_Fill_State(bool state) { fill_state = state; }
-		bool Get_Border_State() { return border_state; }
-		void Set_Border_State(bool state) { border_state = state; }
 };
 
 struct Edge {
@@ -112,6 +110,7 @@ public:
 	void drawLine(Layer layer);
 	void BresenhamCircle(Layer layer);
 	void Cyrus_Beck(Layer* layer);
+	QVector<QPoint> Sutherland_Hodgeman(Layer* layer);
 	void drawPolygon(Layer layer);
 	void ZBuffer();
 	void Add_Layer();
@@ -121,12 +120,17 @@ public:
 	void Scale(Layer* layer, double sx, double sy);
 	void Shear(Layer* layer, double shx);
 	void Fill(Layer* layer);
+	void Fill(QVector<QPoint> points, QColor color);
+	void FillCircle(Layer* layer);
 	void Rem_Layer(int index);
 	void ScanLine(QVector <QPoint> points, QColor color);
 	QVector<Layer> Get_Layers() { return Layers; }	
 	Layer* Get_Layer(int index) {return &Layers[index]; }
 	void Set_Layers(QVector<Layer> layers) { Layers = layers; }
 	void Swap_Layers_Depth(int index1, int index2);
+	bool Save_Data();
+	bool Load_Data();
+	void Clear_Data();
 
 public slots:
 	void paintEvent(QPaintEvent* event) Q_DECL_OVERRIDE;
