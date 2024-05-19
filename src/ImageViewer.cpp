@@ -62,6 +62,7 @@ void ImageViewer::ViewerWidgetMouseButtonPress(ViewerWidget* w, QEvent* event) {
 			w->update();
 			EnableTools();
 			ui->toolButtonDrawLine->setChecked(false);
+			List_Layers();
 		}
 		else {
 			if (w->Get_Layer(ui->ListLayers->currentRow())->Get_Points().size() == 0) {
@@ -82,6 +83,7 @@ void ImageViewer::ViewerWidgetMouseButtonPress(ViewerWidget* w, QEvent* event) {
 			w->update();
 			EnableTools();
 			ui->toolButtonCircle->setChecked(false);
+			List_Layers();
 		}
 		else {
 			if (vW->Get_Layer(ui->ListLayers->currentRow())->Get_Points().size() == 0) {
@@ -117,6 +119,7 @@ void ImageViewer::ViewerWidgetMouseButtonPress(ViewerWidget* w, QEvent* event) {
 		EnableTools();
 		w->update();
 		ui->toolButtonPolygon->setChecked(false);
+		List_Layers();
 	}
 	if (e->button() == Qt::LeftButton && ui->toolButtonBezier->isChecked() && ui->ListLayers->currentItem() != nullptr) {
 		if (w->Get_Layer(ui->ListLayers->currentRow())->Get_Points().size() == 0) {
@@ -136,6 +139,7 @@ void ImageViewer::ViewerWidgetMouseButtonPress(ViewerWidget* w, QEvent* event) {
 		w->update();
 		EnableTools();
 		ui->toolButtonBezier->setChecked(false);
+		List_Layers();
 	}
 	if (e->button() == Qt::LeftButton && ui->toolButtonSquare->isChecked() && ui->ListLayers->currentItem() != nullptr) {
 		if (w->getDrawLineActivated()) {
@@ -145,6 +149,7 @@ void ImageViewer::ViewerWidgetMouseButtonPress(ViewerWidget* w, QEvent* event) {
 			w->update();
 			EnableTools();
 			ui->toolButtonDrawLine->setChecked(false);
+			List_Layers();
 		}
 		else {
 			if (w->Get_Layer(ui->ListLayers->currentRow())->Get_Points().size() == 0) {
@@ -276,9 +281,28 @@ void ImageViewer::on_pushButtonSetFillColor_clicked(){
 // custom functions
 void ImageViewer::List_Layers() {
 	ui->ListLayers->clear();
+	// 0 = line, 1 = circle, 2 = polygon, 3 = bezier, 4 = square
+	QVector<QString> layerNames { "Line", "Circle", "Polygon", "Bezier", "Square" };
 	//lisst itms based on depth but print their ID as name in list
 	for (int i = 0; i < vW->Get_Layers().size(); i++) {
-		ui->ListLayers->addItem(QString::number(vW->Get_Layer(i)->Get_LayerID()));
+		if (vW->Get_Layer(i)->Get_Type() == 0) {
+			ui->ListLayers->addItem(QString::number(vW->Get_Layer(i)->Get_Layer_Depth()) + " - " + layerNames.at(0));
+		}
+		else if (vW->Get_Layer(i)->Get_Type() == 1) {
+			ui->ListLayers->addItem(QString::number(vW->Get_Layer(i)->Get_Layer_Depth()) + " - " + layerNames.at(1));
+		}
+		else if (vW->Get_Layer(i)->Get_Type() == 2) {
+			ui->ListLayers->addItem(QString::number(vW->Get_Layer(i)->Get_Layer_Depth()) + " - " + layerNames.at(2));
+		}
+		else if (vW->Get_Layer(i)->Get_Type() == 3) {
+			ui->ListLayers->addItem(QString::number(vW->Get_Layer(i)->Get_Layer_Depth()) + " - " + layerNames.at(3));
+		}
+		else if (vW->Get_Layer(i)->Get_Type() == 4) {
+			ui->ListLayers->addItem(QString::number(vW->Get_Layer(i)->Get_Layer_Depth()) + " - " + layerNames.at(4));
+		}
+		else {
+			ui->ListLayers->addItem(QString::number(vW->Get_Layer(i)->Get_Layer_Depth()));
+		}
 	}
 	vW->ZBuffer();
 }

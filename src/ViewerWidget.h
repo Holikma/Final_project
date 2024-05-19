@@ -11,7 +11,7 @@ class Layer {
 		int LayerID = 0;
 		int Layer_Depth = 0;
 		int type = -1;
-		// 0 = line, 1 = circle, 2 = polygon
+		// 0 = line, 1 = circle, 2 = polygon, 3 = bezier, 4 = square
 		QColor BorderColor = QColor(125, 125, 125);
 		QColor FillColor = QColor(255, 255, 125);
 		int draw_type = 0;
